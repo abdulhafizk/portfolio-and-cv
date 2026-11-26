@@ -6,7 +6,6 @@ import Skills from "./components/Skills";
 import Achievements from "./components/Achievements";
 import Projects from "./components/Projects";
 import ProjectDetailPage from "./components/ProjectDetailPage";
-import 
 import Contact from "./components/Contact";
 import BackToTop from "./components/BackToTop";
 import { PROFILE_DATA, PROJECTS_DATA } from "./data/portfolioData";
