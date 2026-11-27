@@ -40,7 +40,7 @@ export default function Hero({ onShowToast }) {
       <div className="grid items-start gap-12 lg:grid-cols-12 lg:gap-10">
         {/* Kolom Kiri: Editorial Headline */}
         <div className="space-y-7 lg:col-span-7">
-          <div className="reveal-visible inline-flex items-center gap-2.5 rounded-full border border-[var(--border-hairline)] bg-[var(--bg-surface)] px-3.5 py-1.5 text-xs font-medium text-[var(--text-secondary)]">
+          <div className="reveal-visible inline-flex items-center gap-2.5 rounded-full border border-[var(--border-hairline)] bg-[var(--bg-surface)] px-3.5 py-1.5 text-xs font-medium text-[var(--text-secondary)] transition-colors duration-200 hover:border-emerald-500/40">
             <span
               className="h-2 w-2 rounded-full bg-emerald-500"
               aria-hidden="true"
@@ -53,7 +53,7 @@ export default function Hero({ onShowToast }) {
           </div>
 
           <div
-            style={{ animationDelay: "90ms" }}
+            style={{ animationDelay: "70ms" }}
             className="reveal-visible space-y-4"
           >
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-amber-700 dark:text-amber-400">
@@ -71,7 +71,7 @@ export default function Hero({ onShowToast }) {
           </div>
 
           <div
-            style={{ animationDelay: "180ms" }}
+            style={{ animationDelay: "140ms" }}
             className="reveal-visible flex flex-wrap items-center gap-3.5 pt-1"
           >
             <button
@@ -81,16 +81,19 @@ export default function Hero({ onShowToast }) {
                   .getElementById("projects")
                   ?.scrollIntoView({ behavior: "smooth" })
               }
-              className="inline-flex cursor-pointer items-center gap-2.5 rounded-full bg-stone-900 px-6 py-3.5 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-stone-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 dark:bg-amber-400 dark:text-stone-950 dark:hover:bg-amber-300"
+              className="group/cta inline-flex cursor-pointer items-center gap-2.5 rounded-full bg-stone-900 px-6 py-3.5 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-stone-800 active:scale-[0.98] focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 dark:bg-amber-400 dark:text-stone-950 dark:hover:bg-amber-300"
             >
               <span>Eksplorasi Proyek</span>
-              <FiArrowRight className="h-4 w-4" aria-hidden="true" />
+              <FiArrowRight
+                className="h-4 w-4 transition-transform duration-200 group-hover/cta:translate-x-1"
+                aria-hidden="true"
+              />
             </button>
 
             <button
               type="button"
               onClick={handleCopyEmail}
-              className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-[var(--border-hairline)] bg-[var(--bg-surface)] px-5 py-3.5 text-sm font-semibold text-[var(--text-primary)] transition-all duration-200 hover:-translate-y-0.5 hover:border-amber-600/50 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
+              className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-[var(--border-hairline)] bg-[var(--bg-surface)] px-5 py-3.5 text-sm font-semibold text-[var(--text-primary)] transition-all duration-200 hover:-translate-y-0.5 hover:border-amber-600/50 active:scale-[0.98] focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
             >
               {copied ? (
                 <>
@@ -112,10 +115,10 @@ export default function Hero({ onShowToast }) {
 
         {/* Kolom Kanan: Kartu Profil Ringkas yang Lebih Berisi & Rapi */}
         <div
-          style={{ animationDelay: "220ms" }}
+          style={{ animationDelay: "180ms" }}
           className="reveal-visible lg:col-span-5"
         >
-          <div className="animate-float-slow rounded-3xl border border-[var(--border-hairline)] bg-[var(--bg-surface)] p-7 shadow-xs sm:p-8">
+          <div className="animate-float-slow rounded-3xl border border-[var(--border-hairline)] bg-[var(--bg-surface)] p-7 shadow-xs transition-colors duration-250 hover:border-amber-600/35 sm:p-8">
             <div className="flex items-start justify-between gap-3 border-b border-[var(--border-hairline)] pb-5">
               <div>
                 <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-amber-700 dark:text-amber-400">
@@ -140,7 +143,7 @@ export default function Hero({ onShowToast }) {
                 {stats.map((stat, idx) => (
                   <div
                     key={`${stat.label}-${idx}`}
-                    className="rounded-2xl border border-[var(--border-hairline)] bg-[var(--bg-canvas)]/75 px-3 py-3 text-center"
+                    className="rounded-2xl border border-[var(--border-hairline)] bg-[var(--bg-canvas)]/75 px-3 py-3 text-center transition-all duration-200 hover:-translate-y-0.5 hover:border-amber-600/35"
                   >
                     <dt className="text-[10px] font-semibold uppercase tracking-wider text-[var(--text-secondary)]">
                       {stat.label}

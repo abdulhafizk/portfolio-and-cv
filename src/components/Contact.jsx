@@ -17,6 +17,11 @@ export default function Contact({ onShowToast }) {
   const [submittedMessage, setSubmittedMessage] = useState("");
   const [copied, setCopied] = useState(false);
 
+  const email = PROFILE_DATA?.email || "";
+  const socials = Array.isArray(PROFILE_DATA?.socials)
+    ? PROFILE_DATA.socials.filter((s) => s?.name && s?.url)
+    : [];
+
   const validate = (values) => {
     const nextErrors = {};
     if (!values.name.trim()) nextErrors.name = "Nama wajib diisi.";
@@ -55,24 +60,25 @@ export default function Contact({ onShowToast }) {
     }
     setErrors({});
     setSubmittedMessage(
-      `Terima kasih, ${formData.name.trim()}. Pesan Anda telah divalidasi untuk ${PROFILE_DATA.email}.`
+      `Terima kasih, ${formData.name.trim()}. Pesan Anda telah divalidasi${
+        email ? ` untuk ${email}` : ""
+      }.`
     );
     onShowToast?.("Pesan berhasil divalidasi.");
     setFormData(INITIAL_FORM);
   };
 
   const handleCopyEmail = async () => {
+    if (!email) return;
     try {
-      await navigator.clipboard.writeText(PROFILE_DATA.email);
+      await navigator.clipboard.writeText(email);
       setCopied(true);
-      onShowToast?.(`Email ${PROFILE_DATA.email} disalin.`);
+      onShowToast?.(`Email ${email} disalin.`);
       setTimeout(() => setCopied(false), 2000);
     } catch {
       onShowToast?.("Gagal menyalin email.");
     }
   };
-
-  const socials = PROFILE_DATA.socials?.filter((s) => s.name && s.url) ?? [];
 
   return (
     <section
@@ -98,39 +104,41 @@ export default function Contact({ onShowToast }) {
               </p>
             </div>
 
-            <div className="rounded-3xl border border-[var(--border-hairline)] bg-[var(--bg-surface)] p-6 transition-all duration-300 hover:-translate-y-0.5 hover:border-amber-600/40">
-              <p className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text-secondary)]">
-                Email Langsung
-              </p>
-              <div className="mt-2 flex flex-wrap items-center justify-between gap-3">
-                <a
-                  href={`mailto:${PROFILE_DATA.email}`}
-                  className="text-sm font-semibold text-[var(--text-primary)] underline-offset-4 hover:underline"
-                >
-                  {PROFILE_DATA.email}
-                </a>
-                <button
-                  type="button"
-                  onClick={handleCopyEmail}
-                  className="inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-[var(--border-hairline)] bg-[var(--bg-subtle)] px-3.5 py-1.5 text-xs font-semibold text-[var(--text-primary)] transition-colors hover:border-amber-600/50 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
-                >
-                  {copied ? (
-                    <>
-                      <FiCheck
-                        className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400"
-                        aria-hidden="true"
-                      />
-                      <span>Tersalin</span>
-                    </>
-                  ) : (
-                    <>
-                      <FiCopy className="h-3.5 w-3.5" aria-hidden="true" />
-                      <span>Salin</span>
-                    </>
-                  )}
-                </button>
+            {email && (
+              <div className="rounded-3xl border border-[var(--border-hairline)] bg-[var(--bg-surface)] p-6 transition-colors duration-200 hover:border-amber-600/35">
+                <p className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text-secondary)]">
+                  Email Langsung
+                </p>
+                <div className="mt-2 flex flex-wrap items-center justify-between gap-3">
+                  <a
+                    href={`mailto:${email}`}
+                    className="text-sm font-semibold text-[var(--text-primary)] underline-offset-4 transition-colors hover:text-amber-700 hover:underline dark:hover:text-amber-400"
+                  >
+                    {email}
+                  </a>
+                  <button
+                    type="button"
+                    onClick={handleCopyEmail}
+                    className="inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-[var(--border-hairline)] bg-[var(--bg-subtle)] px-3.5 py-1.5 text-xs font-semibold text-[var(--text-primary)] transition-all duration-200 hover:border-amber-600/50 active:scale-[0.98] focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
+                  >
+                    {copied ? (
+                      <>
+                        <FiCheck
+                          className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400"
+                          aria-hidden="true"
+                        />
+                        <span>Tersalin</span>
+                      </>
+                    ) : (
+                      <>
+                        <FiCopy className="h-3.5 w-3.5" aria-hidden="true" />
+                        <span>Salin</span>
+                      </>
+                    )}
+                  </button>
+                </div>
               </div>
-            </div>
+            )}
 
             {socials.length > 0 && (
               <div className="space-y-3">
@@ -144,10 +152,13 @@ export default function Contact({ onShowToast }) {
                       href={social.url}
                       target="_blank"
                       rel="noreferrer"
-                      className="inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-[var(--border-hairline)] bg-[var(--bg-surface)] px-4 py-2 text-xs font-semibold text-[var(--text-primary)] transition-all duration-200 hover:-translate-y-0.5 hover:border-amber-600/50 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
+                      className="group/social inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-[var(--border-hairline)] bg-[var(--bg-surface)] px-4 py-2 text-xs font-semibold text-[var(--text-primary)] transition-all duration-200 hover:-translate-y-0.5 hover:border-amber-600/50 active:scale-[0.98] focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
                     >
                       <span>{social.name}</span>
-                      <FiArrowUpRight className="h-3.5 w-3.5" aria-hidden="true" />
+                      <FiArrowUpRight
+                        className="h-3.5 w-3.5 transition-transform duration-200 group-hover/social:translate-x-0.5 group-hover/social:-translate-y-0.5"
+                        aria-hidden="true"
+                      />
                     </a>
                   ))}
                 </div>
@@ -155,11 +166,11 @@ export default function Contact({ onShowToast }) {
             )}
           </Reveal>
 
-          <Reveal delay={100} className="lg:col-span-7">
+          <Reveal delay={80} className="lg:col-span-7">
             <form
               onSubmit={handleSubmit}
               noValidate
-              className="rounded-3xl border border-[var(--border-hairline)] bg-[var(--bg-surface)] p-7 sm:p-9"
+              className="rounded-3xl border border-[var(--border-hairline)] bg-[var(--bg-surface)] p-7 transition-colors duration-200 hover:border-amber-600/35 sm:p-9"
             >
               {submittedMessage && (
                 <div
@@ -191,10 +202,10 @@ export default function Contact({ onShowToast }) {
                     placeholder="Nama Anda"
                     aria-invalid={Boolean(errors.name)}
                     aria-describedby={errors.name ? "error-name" : undefined}
-                    className={`mt-2 w-full rounded-xl border bg-[var(--bg-canvas)] px-4 py-3 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]/60 transition-colors focus:outline-none focus:ring-2 ${
+                    className={`mt-2 w-full rounded-xl border bg-[var(--bg-canvas)] px-4 py-3 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]/60 transition-colors duration-200 focus:outline-none focus:ring-2 ${
                       errors.name
                         ? "border-rose-500 focus:ring-rose-500"
-                        : "border-[var(--border-hairline)] focus:ring-amber-500"
+                        : "border-[var(--border-hairline)] hover:border-amber-600/35 focus:ring-amber-500"
                     }`}
                   />
                   {errors.name && (
@@ -223,10 +234,10 @@ export default function Contact({ onShowToast }) {
                     placeholder="nama@email.com"
                     aria-invalid={Boolean(errors.email)}
                     aria-describedby={errors.email ? "error-email" : undefined}
-                    className={`mt-2 w-full rounded-xl border bg-[var(--bg-canvas)] px-4 py-3 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]/60 transition-colors focus:outline-none focus:ring-2 ${
+                    className={`mt-2 w-full rounded-xl border bg-[var(--bg-canvas)] px-4 py-3 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]/60 transition-colors duration-200 focus:outline-none focus:ring-2 ${
                       errors.email
                         ? "border-rose-500 focus:ring-rose-500"
-                        : "border-[var(--border-hairline)] focus:ring-amber-500"
+                        : "border-[var(--border-hairline)] hover:border-amber-600/35 focus:ring-amber-500"
                     }`}
                   />
                   {errors.email && (
@@ -254,7 +265,7 @@ export default function Contact({ onShowToast }) {
                   value={formData.subject}
                   onChange={handleChange}
                   placeholder="Contoh: Diskusi proyek website / kolaborasi"
-                  className="mt-2 w-full rounded-xl border border-[var(--border-hairline)] bg-[var(--bg-canvas)] px-4 py-3 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]/60 transition-colors focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  className="mt-2 w-full rounded-xl border border-[var(--border-hairline)] bg-[var(--bg-canvas)] px-4 py-3 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]/60 transition-colors duration-200 hover:border-amber-600/35 focus:outline-none focus:ring-2 focus:ring-amber-500"
                 />
               </div>
 
@@ -274,10 +285,10 @@ export default function Contact({ onShowToast }) {
                   placeholder="Ceritakan kebutuhan, lini masa, atau hal yang ingin didiskusikan..."
                   aria-invalid={Boolean(errors.message)}
                   aria-describedby={errors.message ? "error-message" : undefined}
-                  className={`mt-2 w-full rounded-xl border bg-[var(--bg-canvas)] px-4 py-3 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]/60 transition-colors focus:outline-none focus:ring-2 ${
+                  className={`mt-2 w-full rounded-xl border bg-[var(--bg-canvas)] px-4 py-3 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]/60 transition-colors duration-200 focus:outline-none focus:ring-2 ${
                     errors.message
                       ? "border-rose-500 focus:ring-rose-500"
-                      : "border-[var(--border-hairline)] focus:ring-amber-500"
+                      : "border-[var(--border-hairline)] hover:border-amber-600/35 focus:ring-amber-500"
                   }`}
                 />
                 {errors.message && (
@@ -293,10 +304,13 @@ export default function Contact({ onShowToast }) {
               <div className="mt-6 flex justify-end">
                 <button
                   type="submit"
-                  className="inline-flex cursor-pointer items-center gap-2 rounded-full bg-stone-900 px-6 py-3.5 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-stone-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 dark:bg-amber-400 dark:text-stone-950 dark:hover:bg-amber-300"
+                  className="group/submit inline-flex cursor-pointer items-center gap-2 rounded-full bg-stone-900 px-6 py-3.5 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-stone-800 active:scale-[0.98] focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 dark:bg-amber-400 dark:text-stone-950 dark:hover:bg-amber-300"
                 >
                   <span>Kirim Pesan</span>
-                  <FiSend className="h-4 w-4" aria-hidden="true" />
+                  <FiSend
+                    className="h-4 w-4 transition-transform duration-200 group-hover/submit:translate-x-0.5 group-hover/submit:-translate-y-0.5"
+                    aria-hidden="true"
+                  />
                 </button>
               </div>
             </form>

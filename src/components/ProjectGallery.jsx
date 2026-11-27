@@ -75,7 +75,7 @@ export default function ProjectGallery({ items = [], projectTitle = "" }) {
                 type="button"
                 onClick={() => setActiveIndex(null)}
                 aria-label="Tutup pratinjau foto"
-                className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border border-[var(--border-hairline)] bg-[var(--bg-subtle)] text-[var(--text-primary)] transition-colors hover:border-amber-600/50 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
+                className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border border-[var(--border-hairline)] bg-[var(--bg-subtle)] text-[var(--text-primary)] transition-all duration-200 hover:border-amber-600/50 active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
               >
                 <FiX className="h-4 w-4" aria-hidden="true" />
               </button>
@@ -105,7 +105,7 @@ export default function ProjectGallery({ items = [], projectTitle = "" }) {
                       )
                     }
                     aria-label="Foto sebelumnya"
-                    className="absolute left-3 top-1/2 flex h-10 w-10 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full border border-white/15 bg-black/65 text-white shadow-sm backdrop-blur-xs transition-colors hover:border-amber-500/60 hover:bg-black/85 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 sm:left-4"
+                    className="absolute left-3 top-1/2 flex h-10 w-10 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full border border-white/15 bg-black/65 text-white shadow-sm backdrop-blur-xs transition-all duration-200 hover:border-amber-500/60 hover:bg-black/85 active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 sm:left-4"
                   >
                     <FiChevronLeft className="h-4 w-4" aria-hidden="true" />
                   </button>
@@ -116,7 +116,7 @@ export default function ProjectGallery({ items = [], projectTitle = "" }) {
                       setActiveIndex((prev) => (prev + 1) % validItems.length)
                     }
                     aria-label="Foto berikutnya"
-                    className="absolute right-3 top-1/2 flex h-10 w-10 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full border border-white/15 bg-black/65 text-white shadow-sm backdrop-blur-xs transition-colors hover:border-amber-500/60 hover:bg-black/85 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 sm:right-4"
+                    className="absolute right-3 top-1/2 flex h-10 w-10 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full border border-white/15 bg-black/65 text-white shadow-sm backdrop-blur-xs transition-all duration-200 hover:border-amber-500/60 hover:bg-black/85 active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 sm:right-4"
                   >
                     <FiChevronRight className="h-4 w-4" aria-hidden="true" />
                   </button>
@@ -143,7 +143,7 @@ export default function ProjectGallery({ items = [], projectTitle = "" }) {
   return (
     <section
       aria-label="Galeri Foto Proyek"
-      className="mt-10 rounded-3xl border border-[var(--border-hairline)] bg-[var(--bg-surface)] p-6 sm:p-8"
+      className="mt-10 rounded-3xl border border-[var(--border-hairline)] bg-[var(--bg-surface)] p-6 transition-colors duration-200 hover:border-amber-600/35 sm:p-8"
     >
       <div className="flex flex-wrap items-end justify-between gap-2 border-b border-[var(--border-hairline)] pb-4">
         <div>
@@ -163,7 +163,7 @@ export default function ProjectGallery({ items = [], projectTitle = "" }) {
         {validItems.map((photo, idx) => (
           <figure
             key={`${photo.src}-${photo.originalIndex}`}
-            className="group overflow-hidden rounded-2xl border border-[var(--border-hairline)] bg-[var(--bg-canvas)]/60"
+            className="group overflow-hidden rounded-2xl border border-[var(--border-hairline)] bg-[var(--bg-canvas)]/60 transition-colors duration-200 hover:border-amber-600/40"
           >
             <button
               type="button"
@@ -181,9 +181,9 @@ export default function ProjectGallery({ items = [], projectTitle = "" }) {
                     [photo.originalIndex]: true,
                   }))
                 }
-                className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                className="h-full w-full object-cover transition-transform duration-400 ease-out group-hover:scale-105"
               />
-              <span className="absolute bottom-3 right-3 inline-flex h-8 w-8 items-center justify-center rounded-full border border-[var(--border-hairline)] bg-[var(--bg-surface)]/90 text-[var(--text-primary)] shadow-xs transition-transform group-hover:scale-105">
+              <span className="absolute bottom-3 right-3 inline-flex h-8 w-8 items-center justify-center rounded-full border border-[var(--border-hairline)] bg-[var(--bg-surface)]/90 text-[var(--text-primary)] shadow-xs transition-transform duration-200 group-hover:scale-105">
                 <FiMaximize2 className="h-3.5 w-3.5" aria-hidden="true" />
               </span>
             </button>

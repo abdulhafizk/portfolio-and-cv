@@ -1,142 +1,3 @@
-// import { FiBriefcase, FiBookOpen, FiMapPin } from "react-icons/fi";
-// import { PROFILE_DATA, EXPERIENCE_DATA, EDUCATION_DATA } from "../data/portfolioData";
-// import Reveal from "./Reveal";
-
-// export default function About() {
-//   return (
-//     <section id="about" className="border-t border-[var(--border-hairline)] py-20 sm:py-28">
-//       <div className="mx-auto max-w-6xl px-5 sm:px-8">
-//         <Reveal className="grid gap-10 lg:grid-cols-12 lg:items-end">
-//           <div className="space-y-3 lg:col-span-6">
-//             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-amber-700 dark:text-amber-400">
-//               Tentang & Riwayat
-//             </p>
-//             <h2 className="text-3xl font-bold tracking-tight text-[var(--text-primary)] sm:text-4xl">
-//               Perjalanan akademik dan{" "}
-//               <span className="font-editorial text-4xl font-normal italic text-amber-700 dark:text-amber-400 sm:text-5xl">
-//                 pengalaman praktik
-//               </span>
-//             </h2>
-//           </div>
-//           <p className="text-sm leading-relaxed text-[var(--text-secondary)] sm:text-base lg:col-span-6">
-//             {PROFILE_DATA.aboutSummary}
-//           </p>
-//         </Reveal>
-
-//         <div className="mt-14 grid gap-8 lg:grid-cols-2">
-//           <Reveal delay={80} className="rounded-3xl border border-[var(--border-hairline)] bg-[var(--bg-surface)] p-7 transition-all duration-300 hover:-translate-y-1 hover:border-amber-600/40 sm:p-9">
-//             <div className="mb-7 flex items-center gap-3.5 border-b border-[var(--border-hairline)] pb-5">
-//               <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[var(--bg-subtle)] text-amber-700 dark:text-amber-400">
-//                 <FiBriefcase className="h-4 w-4" />
-//               </div>
-//               <div>
-//                 <h3 className="text-base font-bold text-[var(--text-primary)]">Pengalaman</h3>
-//                 <p className="text-xs text-[var(--text-secondary)]">Proyek mandiri & kolaborasi</p>
-//               </div>
-//             </div>
-
-//             <div className="space-y-8">
-//               {EXPERIENCE_DATA.map((item, index) => (
-//                 <article
-//                   key={item.id || `exp-${index}`}
-//                   className="relative border-l border-[var(--border-hairline)] pl-6"
-//                 >
-//                   <span className="absolute -left-[4.5px] top-1.5 h-2 w-2 rounded-full bg-amber-600 dark:bg-amber-400" />
-//                   <div className="flex flex-wrap items-center justify-between gap-2">
-//                     <span className="text-[11px] font-semibold uppercase tracking-wider text-amber-700 dark:text-amber-400">
-//                       {item.period}
-//                     </span>
-//                     {item.location && (
-//                       <span className="inline-flex items-center gap-1 text-xs text-[var(--text-secondary)]">
-//                         <FiMapPin className="h-3 w-3" />
-//                         {item.location}
-//                       </span>
-//                     )}
-//                   </div>
-//                   <h4 className="mt-1.5 text-base font-semibold text-[var(--text-primary)]">
-//                     {item.role}
-//                   </h4>
-//                   <p className="text-sm font-medium text-[var(--text-secondary)]">
-//                     {item.organization}
-//                   </p>
-//                   <p className="mt-2.5 text-sm leading-relaxed text-[var(--text-secondary)]">
-//                     {item.description}
-//                   </p>
-//                   {item.highlights?.filter(Boolean).length > 0 && (
-//                     <ul className="mt-3.5 space-y-1.5 text-xs text-[var(--text-secondary)]">
-//                       {item.highlights.filter(Boolean).map((point, idx) => (
-//                         <li key={`${item.id}-hl-${idx}`} className="flex items-start gap-2.5">
-//                           <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-amber-600 dark:bg-amber-400" />
-//                           <span>{point}</span>
-//                         </li>
-//                       ))}
-//                     </ul>
-//                   )}
-//                 </article>
-//               ))}
-//             </div>
-//           </Reveal>
-
-//           <Reveal delay={160} className="rounded-3xl border border-[var(--border-hairline)] bg-[var(--bg-surface)] p-7 transition-all duration-300 hover:-translate-y-1 hover:border-emerald-600/40 sm:p-9">
-//             <div className="mb-7 flex items-center gap-3.5 border-b border-[var(--border-hairline)] pb-5">
-//               <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[var(--bg-subtle)] text-emerald-700 dark:text-emerald-400">
-//                 <FiBookOpen className="h-4 w-4" />
-//               </div>
-//               <div>
-//                 <h3 className="text-base font-bold text-[var(--text-primary)]">Pendidikan</h3>
-//                 <p className="text-xs text-[var(--text-secondary)]">Riwayat studi formal</p>
-//               </div>
-//             </div>
-
-//             <div className="space-y-8">
-//               {EDUCATION_DATA.map((edu, index) => (
-//                 <article
-//                   key={edu.id || `edu-${index}`}
-//                   className="relative border-l border-[var(--border-hairline)] pl-6"
-//                 >
-//                   <span className="absolute -left-[4.5px] top-1.5 h-2 w-2 rounded-full bg-emerald-600 dark:bg-emerald-400" />
-//                   <div className="flex flex-wrap items-center justify-between gap-2">
-//                     <span className="text-[11px] font-semibold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">
-//                       {edu.period}
-//                     </span>
-//                     {edu.gpa && (
-//                       <span className="rounded-full border border-[var(--border-hairline)] bg-[var(--bg-subtle)] px-2.5 py-0.5 text-[11px] font-semibold text-[var(--text-primary)]">
-//                         {edu.gpa}
-//                       </span>
-//                     )}
-//                   </div>
-//                   <h4 className="mt-1.5 text-base font-semibold text-[var(--text-primary)]">
-//                     {edu.degree}
-//                   </h4>
-//                   <p className="text-sm font-medium text-[var(--text-secondary)]">
-//                     {edu.institution}
-//                     {edu.location ? ` · ${edu.location}` : ""}
-//                   </p>
-//                   {edu.description && (
-//                     <p className="mt-2.5 text-sm leading-relaxed text-[var(--text-secondary)]">
-//                       {edu.description}
-//                     </p>
-//                   )}
-//                   {edu.highlights?.filter(Boolean).length > 0 && (
-//                     <ul className="mt-3.5 space-y-1.5 text-xs text-[var(--text-secondary)]">
-//                       {edu.highlights.filter(Boolean).map((point, idx) => (
-//                         <li key={`${edu.id}-hl-${idx}`} className="flex items-start gap-2.5">
-//                           <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-emerald-600 dark:bg-emerald-400" />
-//                           <span>{point}</span>
-//                         </li>
-//                       ))}
-//                     </ul>
-//                   )}
-//                 </article>
-//               ))}
-//             </div>
-//           </Reveal>
-//         </div>
-//       </div>
-//     </section>
-//   );
-// }
-
 import { FiBriefcase, FiBookOpen, FiMapPin, FiCheck } from "react-icons/fi";
 import {
   PROFILE_DATA,
@@ -181,13 +42,13 @@ export default function About() {
         <div className="mt-14 grid gap-8 lg:grid-cols-2">
           {/* Kolom Pengalaman */}
           <Reveal
-            delay={80}
-            className="flex flex-col justify-between rounded-3xl border border-[var(--border-hairline)] bg-[var(--bg-surface)] p-7 transition-all duration-300 hover:-translate-y-1 hover:border-amber-600/40 sm:p-9"
+            delay={60}
+            className="group/exp flex flex-col justify-between rounded-3xl border border-[var(--border-hairline)] bg-[var(--bg-surface)] p-7 transition-all duration-250 hover:-translate-y-1 hover:border-amber-600/45 sm:p-9"
           >
             <div>
               <div className="mb-8 flex items-center justify-between gap-4 border-b border-[var(--border-hairline)] pb-5">
                 <div className="flex items-center gap-3.5">
-                  <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-[var(--border-hairline)] bg-[var(--bg-subtle)] text-amber-700 dark:text-amber-400">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-[var(--border-hairline)] bg-[var(--bg-subtle)] text-amber-700 transition-transform duration-200 group-hover/exp:scale-105 dark:text-amber-400">
                     <FiBriefcase className="h-4 w-4" aria-hidden="true" />
                   </div>
                   <div>
@@ -266,7 +127,7 @@ export default function About() {
                           {highlights.map((point, idx) => (
                             <li
                               key={`${item.id}-hl-${idx}`}
-                              className="flex items-start gap-2"
+                              className="flex items-start gap-2 transition-transform duration-200 hover:translate-x-0.5"
                             >
                               <FiCheck
                                 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-700 dark:text-amber-400"
@@ -293,13 +154,13 @@ export default function About() {
 
           {/* Kolom Pendidikan */}
           <Reveal
-            delay={160}
-            className="flex flex-col justify-between rounded-3xl border border-[var(--border-hairline)] bg-[var(--bg-surface)] p-7 transition-all duration-300 hover:-translate-y-1 hover:border-emerald-600/40 sm:p-9"
+            delay={120}
+            className="group/edu flex flex-col justify-between rounded-3xl border border-[var(--border-hairline)] bg-[var(--bg-surface)] p-7 transition-all duration-250 hover:-translate-y-1 hover:border-emerald-600/45 sm:p-9"
           >
             <div>
               <div className="mb-8 flex items-center justify-between gap-4 border-b border-[var(--border-hairline)] pb-5">
                 <div className="flex items-center gap-3.5">
-                  <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-[var(--border-hairline)] bg-[var(--bg-subtle)] text-emerald-700 dark:text-emerald-400">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-[var(--border-hairline)] bg-[var(--bg-subtle)] text-emerald-700 transition-transform duration-200 group-hover/edu:scale-105 dark:text-emerald-400">
                     <FiBookOpen className="h-4 w-4" aria-hidden="true" />
                   </div>
                   <div>
@@ -378,7 +239,7 @@ export default function About() {
                           {highlights.map((point, idx) => (
                             <li
                               key={`${edu.id}-hl-${idx}`}
-                              className="flex items-start gap-2"
+                              className="flex items-start gap-2 transition-transform duration-200 hover:translate-x-0.5"
                             >
                               <FiCheck
                                 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-700 dark:text-emerald-400"

@@ -6,12 +6,13 @@ import Skills from "./components/Skills";
 import Achievements from "./components/Achievements";
 import Projects from "./components/Projects";
 import ProjectDetailPage from "./components/ProjectDetailPage";
+import DesignGallerySection from "./components/DesignGallerySection";
 import Contact from "./components/Contact";
 import BackToTop from "./components/BackToTop";
 import { PROFILE_DATA, PROJECTS_DATA } from "./data/portfolioData";
 
 const THEME_STORAGE_KEY = "portfolio-theme-preference";
-const SECTION_IDS = ["about", "skills", "achievements", "projects", "contact"];
+const SECTION_IDS = ["about", "skills", "achievements", "projects", "design-gallery", "contact"];
 
 export default function App() {
   const [isDark, setIsDark] = useState(() => {
@@ -128,26 +129,42 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    if (selectedProject) return;
+      if (selectedProject) return;
 
-    const handleScroll = () => {
-      const scrollPosition = window.scrollY + 140;
-      for (const id of SECTION_IDS) {
-        const el = document.getElementById(id);
-        if (!el) continue;
-        const top = el.offsetTop;
-        const height = el.offsetHeight;
-        if (scrollPosition >= top && scrollPosition < top + height) {
-          setActiveSection(id);
-          break;
+      const handleScroll = () => {
+        const scrollPosition = window.scrollY + 140;
+
+        // Jika sudah mentok sampai bagian paling bawah halaman, aktifkan section terakhir yang ada
+        const nearBottom =
+          window.innerHeight + window.scrollY >=
+          document.documentElement.scrollHeight - 24;
+
+        if (nearBottom) {
+          for (let i = SECTION_IDS.length - 1; i >= 0; i -= 1) {
+            const el = document.getElementById(SECTION_IDS[i]);
+            if (el) {
+              setActiveSection(SECTION_IDS[i]);
+              return;
+            }
+          }
         }
-      }
-    };
 
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    handleScroll();
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [selectedProject]);
+        for (const id of SECTION_IDS) {
+          const el = document.getElementById(id);
+          if (!el) continue;
+          const top = el.offsetTop;
+          const height = el.offsetHeight;
+          if (scrollPosition >= top && scrollPosition < top + height) {
+            setActiveSection(id);
+            break;
+          }
+        }
+      };
+
+      window.addEventListener("scroll", handleScroll, { passive: true });
+      handleScroll();
+      return () => window.removeEventListener("scroll", handleScroll);
+    }, [selectedProject]);
 
   const showToast = useCallback((message) => {
     setToastMessage(message);
@@ -193,6 +210,7 @@ export default function App() {
             <Skills />
             <Achievements />
             <Projects onSelectProject={handleSelectProject} />
+            <DesignGallerySection />
             <Contact onShowToast={showToast} />
           </>
         )}

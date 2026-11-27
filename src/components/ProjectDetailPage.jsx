@@ -74,7 +74,7 @@ export default function ProjectDetailPage({
 
   const renderHighlightsCard = (extraClass = "") => (
     <section
-      className={`rounded-3xl border border-[var(--border-hairline)] bg-[var(--bg-surface)] p-6 sm:p-7 ${extraClass}`}
+      className={`rounded-3xl border border-[var(--border-hairline)] bg-[var(--bg-surface)] p-6 transition-colors duration-200 hover:border-amber-600/35 sm:p-7 ${extraClass}`}
     >
       <div className="flex items-center justify-between gap-2 border-b border-[var(--border-hairline)] pb-4">
         <h2 className="text-xs font-bold uppercase tracking-[0.18em] text-[var(--text-primary)]">
@@ -108,9 +108,12 @@ export default function ProjectDetailPage({
         <button
           type="button"
           onClick={onBack}
-          className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-[var(--border-hairline)] bg-[var(--bg-surface)] px-4 py-2 text-xs font-semibold text-[var(--text-primary)] transition-all duration-200 hover:-translate-x-0.5 hover:border-amber-600/50 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
+          className="group/back inline-flex cursor-pointer items-center gap-2 rounded-full border border-[var(--border-hairline)] bg-[var(--bg-surface)] px-4 py-2 text-xs font-semibold text-[var(--text-primary)] transition-all duration-200 hover:-translate-x-0.5 hover:border-amber-600/50 active:scale-[0.98] focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
         >
-          <FiArrowLeft className="h-3.5 w-3.5" aria-hidden="true" />
+          <FiArrowLeft
+            className="h-3.5 w-3.5 transition-transform duration-200 group-hover/back:-translate-x-0.5"
+            aria-hidden="true"
+          />
           <span>Kembali ke Portofolio</span>
         </button>
 
@@ -167,10 +170,13 @@ export default function ProjectDetailPage({
                 href={project.demoUrl}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex cursor-pointer items-center gap-2 rounded-full bg-amber-400 px-5 py-2.5 text-xs font-bold text-stone-950 transition-all duration-200 hover:-translate-y-0.5 hover:bg-amber-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
+                className="group/demo inline-flex cursor-pointer items-center gap-2 rounded-full bg-amber-400 px-5 py-2.5 text-xs font-bold text-stone-950 transition-all duration-200 hover:-translate-y-0.5 hover:bg-amber-300 active:scale-[0.98] focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
               >
                 <span>Kunjungi Demo</span>
-                <FiArrowUpRight className="h-4 w-4" aria-hidden="true" />
+                <FiArrowUpRight
+                  className="h-4 w-4 transition-transform duration-200 group-hover/demo:translate-x-0.5 group-hover/demo:-translate-y-0.5"
+                  aria-hidden="true"
+                />
               </a>
             )}
 
@@ -179,7 +185,7 @@ export default function ProjectDetailPage({
                 href={project.repoUrl}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-[var(--border-hairline)] bg-[var(--bg-surface)] px-5 py-2.5 text-xs font-semibold text-[var(--text-primary)] transition-all duration-200 hover:-translate-y-0.5 hover:border-amber-600/50 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
+                className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-[var(--border-hairline)] bg-[var(--bg-surface)] px-5 py-2.5 text-xs font-semibold text-[var(--text-primary)] transition-all duration-200 hover:-translate-y-0.5 hover:border-amber-600/50 active:scale-[0.98] focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
               >
                 <FiCode className="h-3.5 w-3.5" aria-hidden="true" />
                 <span>Repositori Kode</span>
@@ -191,12 +197,12 @@ export default function ProjectDetailPage({
 
       {/* Gambar Utama Proyek */}
       {mainImage && (
-        <div className="mt-6 overflow-hidden rounded-3xl border border-[var(--border-hairline)] bg-[var(--bg-surface)] p-2.5 sm:p-3">
+        <div className="group/hero mt-6 overflow-hidden rounded-3xl border border-[var(--border-hairline)] bg-[var(--bg-surface)] p-2.5 transition-colors duration-200 hover:border-amber-600/35 sm:p-3">
           <div className="overflow-hidden rounded-2xl border border-[var(--border-hairline)]/70 bg-[var(--bg-canvas)]">
             <img
               src={mainImage}
               alt={`Pratinjau ${project.title}`}
-              className="max-h-[480px] w-full object-cover"
+              className="max-h-[480px] w-full object-cover transition-transform duration-400 ease-out group-hover/hero:scale-[1.015]"
             />
           </div>
         </div>
@@ -204,7 +210,7 @@ export default function ProjectDetailPage({
 
       {/* Deskripsi Detail Proyek di Bawah Foto */}
       {projectDescription && (
-        <section className="mt-7 rounded-3xl border border-[var(--border-hairline)] bg-[var(--bg-surface)] p-6 sm:p-7">
+        <section className="mt-7 rounded-3xl border border-[var(--border-hairline)] bg-[var(--bg-surface)] p-6 transition-colors duration-200 hover:border-amber-600/35 sm:p-7">
           <div className="flex items-center gap-2.5 border-b border-[var(--border-hairline)] pb-3.5">
             <FiFileText
               className="h-4 w-4 text-amber-700 dark:text-amber-400"
@@ -225,7 +231,7 @@ export default function ProjectDetailPage({
       {(challenge || solution) && (
         <div className="mt-7 grid gap-6 md:grid-cols-2">
           {challenge && (
-            <section className="rounded-3xl border border-[var(--border-hairline)] bg-[var(--bg-surface)] p-6 sm:p-7">
+            <section className="rounded-3xl border border-[var(--border-hairline)] bg-[var(--bg-surface)] p-6 transition-colors duration-200 hover:border-amber-600/35 sm:p-7">
               <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-amber-700 dark:text-amber-400">
                 Latar Belakang & Tantangan
               </p>
@@ -236,7 +242,7 @@ export default function ProjectDetailPage({
           )}
 
           {solution && (
-            <section className="rounded-3xl border border-[var(--border-hairline)] bg-[var(--bg-surface)] p-6 sm:p-7">
+            <section className="rounded-3xl border border-[var(--border-hairline)] bg-[var(--bg-surface)] p-6 transition-colors duration-200 hover:border-emerald-600/35 sm:p-7">
               <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-700 dark:text-emerald-400">
                 Pendekatan & Solusi
               </p>
@@ -260,7 +266,7 @@ export default function ProjectDetailPage({
         <div className="mt-7 space-y-7">
           {renderHighlightsCard()}
 
-          <section className="rounded-3xl border border-[var(--border-hairline)] bg-[var(--bg-surface)] p-6 sm:p-7">
+          <section className="rounded-3xl border border-[var(--border-hairline)] bg-[var(--bg-surface)] p-6 transition-colors duration-200 hover:border-amber-600/35 sm:p-7">
             <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--border-hairline)] pb-4">
               <h2 className="text-xs font-bold uppercase tracking-[0.18em] text-[var(--text-primary)]">
                 Teknologi Digunakan
@@ -337,7 +343,7 @@ export default function ProjectDetailPage({
 
             {techStack.length > 0 && (
               <section
-                className={`rounded-3xl border border-[var(--border-hairline)] bg-[var(--bg-surface)] p-6 sm:p-7 ${
+                className={`rounded-3xl border border-[var(--border-hairline)] bg-[var(--bg-surface)] p-6 transition-colors duration-200 hover:border-amber-600/35 sm:p-7 ${
                   highlights.length > 0 ? "md:col-span-5" : "md:col-span-12"
                 }`}
               >
@@ -377,16 +383,16 @@ export default function ProjectDetailPage({
             <button
               type="button"
               onClick={() => onSelectProject?.(prevProject)}
-              className="group flex cursor-pointer flex-col justify-between rounded-2xl border border-[var(--border-hairline)] bg-[var(--bg-surface)] p-5 text-left transition-all duration-200 hover:-translate-y-0.5 hover:border-amber-600/50 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
+              className="group flex cursor-pointer flex-col justify-between rounded-2xl border border-[var(--border-hairline)] bg-[var(--bg-surface)] p-5 text-left transition-all duration-200 hover:-translate-y-0.5 hover:border-amber-600/50 active:scale-[0.99] focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
             >
               <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--text-secondary)]">
                 <FiArrowLeft
-                  className="h-3.5 w-3.5 transition-transform group-hover:-translate-x-0.5"
+                  className="h-3.5 w-3.5 transition-transform duration-200 group-hover:-translate-x-1"
                   aria-hidden="true"
                 />
                 <span>Proyek Sebelumnya</span>
               </span>
-              <span className="mt-2 text-base font-bold text-[var(--text-primary)] transition-colors group-hover:text-amber-700 dark:group-hover:text-amber-400">
+              <span className="mt-2 text-base font-bold text-[var(--text-primary)] transition-colors duration-200 group-hover:text-amber-700 dark:group-hover:text-amber-400">
                 {prevProject.title}
               </span>
             </button>
@@ -398,16 +404,16 @@ export default function ProjectDetailPage({
             <button
               type="button"
               onClick={() => onSelectProject?.(nextProject)}
-              className="group flex cursor-pointer flex-col justify-between rounded-2xl border border-[var(--border-hairline)] bg-[var(--bg-surface)] p-5 text-left transition-all duration-200 hover:-translate-y-0.5 hover:border-amber-600/50 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 sm:text-right"
+              className="group flex cursor-pointer flex-col justify-between rounded-2xl border border-[var(--border-hairline)] bg-[var(--bg-surface)] p-5 text-left transition-all duration-200 hover:-translate-y-0.5 hover:border-amber-600/50 active:scale-[0.99] focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 sm:text-right"
             >
               <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--text-secondary)] sm:justify-end">
                 <span>Proyek Berikutnya</span>
                 <FiArrowRight
-                  className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5"
+                  className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-1"
                   aria-hidden="true"
                 />
               </span>
-              <span className="mt-2 text-base font-bold text-[var(--text-primary)] transition-colors group-hover:text-amber-700 dark:group-hover:text-amber-400">
+              <span className="mt-2 text-base font-bold text-[var(--text-primary)] transition-colors duration-200 group-hover:text-amber-700 dark:group-hover:text-amber-400">
                 {nextProject.title}
               </span>
             </button>

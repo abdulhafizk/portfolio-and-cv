@@ -43,23 +43,30 @@ export default function Projects({ onSelectProject }) {
       className="border-t border-[var(--border-hairline)] bg-[var(--bg-subtle)]/45 py-20 sm:py-28"
     >
       <div className="mx-auto max-w-6xl px-5 sm:px-8">
-        <Reveal className="flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
-          <div className="space-y-3 lg:max-w-xl">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-amber-700 dark:text-amber-400">
-              Karya & Studi Kasus
+        <Reveal>
+          <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
+            <div className="space-y-3">
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-amber-700 dark:text-amber-400">
+                Karya & Studi Kasus
+              </p>
+              <h2 className="text-3xl font-bold tracking-tight text-[var(--text-primary)] sm:text-4xl">
+                Proyek pilihan yang{" "}
+                <span className="font-editorial text-4xl font-normal italic text-amber-700 dark:text-amber-400 sm:text-5xl">
+                  dirancang dengan tujuan
+                </span>
+              </h2>
+            </div>
+
+            <p className="max-w-md text-xs leading-relaxed text-[var(--text-secondary)] sm:text-sm">
+              Kumpulan aplikasi web, sistem terintegrasi, dan situs publikasi
+              yang dibangun untuk kebutuhan nyata.
             </p>
-            <h2 className="text-3xl font-bold tracking-tight text-[var(--text-primary)] sm:text-4xl">
-              Proyek pilihan yang{" "}
-              <span className="font-editorial text-4xl font-normal italic text-amber-700 dark:text-amber-400 sm:text-5xl">
-                dirancang dengan tujuan
-              </span>
-            </h2>
           </div>
 
           <div
             role="group"
             aria-label="Filter kategori proyek"
-            className="flex flex-wrap items-center gap-2 lg:max-w-xl lg:justify-end"
+            className="mt-8 flex flex-wrap items-center gap-2"
           >
             {PROJECT_CATEGORIES.map((category) => {
               const active = selectedCategory === category;

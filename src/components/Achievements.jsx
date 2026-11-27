@@ -22,6 +22,9 @@ export default function Achievements() {
   useEffect(() => {
     if (!selectedItem) return;
 
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
     const handleKeyDown = (event) => {
       if (event.key === "Escape") {
         setSelectedItem(null);
@@ -29,7 +32,10 @@ export default function Achievements() {
     };
 
     window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      window.removeEventListener("keydown", handleKeyDown);
+    };
   }, [selectedItem]);
 
   if (!ACHIEVEMENTS_DATA?.length) return null;
@@ -67,9 +73,9 @@ export default function Achievements() {
             return (
               <Reveal
                 key={item.id || `ach-${index}`}
-                delay={index * 80}
+                delay={index * 60}
                 as="article"
-                className="group flex flex-col justify-between rounded-3xl border border-[var(--border-hairline)] bg-[var(--bg-surface)] p-6 transition-all duration-300 hover:-translate-y-1 hover:border-amber-600/40 sm:p-7"
+                className="group flex flex-col justify-between rounded-3xl border border-[var(--border-hairline)] bg-[var(--bg-surface)] p-6 transition-all duration-200 hover:-translate-y-0.5 hover:border-amber-600/40 sm:p-7"
               >
                 <div>
                   <div className="flex items-center justify-between gap-3">
@@ -98,9 +104,9 @@ export default function Achievements() {
                         src={item.image}
                         alt={`${item.title}${item.issuer ? ` — ${item.issuer}` : ""}`}
                         loading="lazy"
-                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        className="h-full w-full object-cover transition-transform duration-400 ease-out group-hover:scale-105"
                       />
-                      <span className="absolute bottom-2.5 right-2.5 inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/20 bg-stone-950/75 text-white opacity-90 backdrop-blur-xs transition-opacity group-hover:opacity-100">
+                      <span className="absolute bottom-2.5 right-2.5 inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/20 bg-stone-950/75 text-white opacity-90 backdrop-blur-xs transition-all duration-200 group-hover:scale-105 group-hover:opacity-100">
                         <FiMaximize2 className="h-3.5 w-3.5" aria-hidden="true" />
                       </span>
                     </button>
@@ -127,10 +133,13 @@ export default function Achievements() {
                       href={item.credentialUrl}
                       target="_blank"
                       rel="noreferrer"
-                      className="inline-flex cursor-pointer items-center gap-1.5 text-xs font-semibold text-[var(--text-primary)] transition-colors hover:text-amber-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 dark:hover:text-amber-400"
+                      className="group/link inline-flex cursor-pointer items-center gap-1.5 text-xs font-semibold text-[var(--text-primary)] transition-colors duration-200 hover:text-amber-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 dark:hover:text-amber-400"
                     >
                       <span>Lihat Kredensial</span>
-                      <FiArrowUpRight className="h-3.5 w-3.5" aria-hidden="true" />
+                      <FiArrowUpRight
+                        className="h-3.5 w-3.5 transition-transform duration-200 group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5"
+                        aria-hidden="true"
+                      />
                     </a>
                   </div>
                 )}
@@ -166,7 +175,7 @@ export default function Achievements() {
                 type="button"
                 onClick={() => setSelectedItem(null)}
                 aria-label="Tutup pratinjau sertifikat"
-                className="flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full border border-[var(--border-hairline)] bg-[var(--bg-subtle)] text-[var(--text-primary)] transition-colors hover:border-amber-600/50 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
+                className="flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full border border-[var(--border-hairline)] bg-[var(--bg-subtle)] text-[var(--text-primary)] transition-all duration-200 hover:border-amber-600/50 active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
               >
                 <FiX className="h-4 w-4" aria-hidden="true" />
               </button>
@@ -182,7 +191,10 @@ export default function Achievements() {
 
             {selectedItem.issuer && (
               <div className="border-t border-[var(--border-hairline)] px-6 py-3.5 text-xs text-[var(--text-secondary)]">
-                Penyelenggara: <span className="font-semibold text-[var(--text-primary)]">{selectedItem.issuer}</span>
+                Penyelenggara:{" "}
+                <span className="font-semibold text-[var(--text-primary)]">
+                  {selectedItem.issuer}
+                </span>
               </div>
             )}
           </div>

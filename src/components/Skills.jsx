@@ -71,10 +71,10 @@ export default function Skills() {
                   type="button"
                   onClick={() => setSelectedLevel(level)}
                   aria-pressed={active}
-                  className={`cursor-pointer rounded-full px-4 py-1.5 text-xs font-semibold transition-all duration-200 ${
+                  className={`cursor-pointer rounded-full px-4 py-1.5 text-xs font-semibold transition-all duration-200 active:scale-[0.97] ${
                     active
                       ? "bg-stone-900 text-white dark:bg-amber-400 dark:text-stone-950"
-                      : "border border-[var(--border-hairline)] bg-[var(--bg-surface)] text-[var(--text-secondary)] hover:-translate-y-0.5 hover:text-[var(--text-primary)]"
+                      : "border border-[var(--border-hairline)] bg-[var(--bg-surface)] text-[var(--text-secondary)] hover:-translate-y-0.5 hover:border-amber-500/40 hover:text-[var(--text-primary)]"
                   }`}
                 >
                   {level}
@@ -93,8 +93,8 @@ export default function Skills() {
             return (
               <Reveal
                 key={`${group.category}-${gIdx}`}
-                delay={gIdx * 80}
-                className="flex flex-col justify-between rounded-3xl border border-[var(--border-hairline)] bg-[var(--bg-surface)] p-7 transition-all duration-300 hover:-translate-y-1 hover:border-amber-600/40"
+                delay={gIdx * 65}
+                className="flex flex-col justify-between rounded-3xl border border-[var(--border-hairline)] bg-[var(--bg-surface)] p-7 transition-all duration-250 hover:-translate-y-1 hover:border-amber-600/45"
               >
                 <div>
                   <div className="flex items-center justify-between gap-3 border-b border-[var(--border-hairline)] pb-4">
@@ -117,10 +117,10 @@ export default function Skills() {
                         return (
                           <li
                             key={`${skill.name}-${sIdx}`}
-                            className="-mx-2 rounded-xl px-2 py-3.5 transition-colors duration-200 first:mt-0 first:pt-1.5 last:pb-1.5 hover:bg-[var(--bg-subtle)]/55"
+                            className="group/item -mx-2 rounded-xl px-2 py-3.5 transition-colors duration-200 first:mt-0 first:pt-1.5 last:pb-1.5 hover:bg-[var(--bg-subtle)]/65"
                           >
                             <div className="flex items-center justify-between gap-3">
-                              <span className="text-sm font-semibold text-[var(--text-primary)]">
+                              <span className="text-sm font-semibold text-[var(--text-primary)] transition-transform duration-200 group-hover/item:translate-x-0.5">
                                 {skill.name}
                               </span>
                               <span
@@ -139,9 +139,9 @@ export default function Skills() {
                             >
                               <div
                                 style={{
-                                  transitionDelay: `${sIdx * 60 + 120}ms`,
+                                  transitionDelay: `${sIdx * 45 + 80}ms`,
                                 }}
-                                className={`h-full rounded-full transition-all duration-700 ease-out ${
+                                className={`h-full rounded-full transition-all duration-400 ease-out ${
                                   config.barClass
                                 } ${gridVisible ? config.widthClass : "w-0"}`}
                               />
@@ -163,7 +163,7 @@ export default function Skills() {
 
         {/* Keterangan Singkat Tingkatan */}
         <Reveal
-          delay={180}
+          delay={140}
           className="mt-8 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-[var(--border-hairline)] bg-[var(--bg-surface)] px-5 py-3.5 text-xs text-[var(--text-secondary)]"
         >
           <div className="flex flex-wrap items-center gap-5">
