@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import {
   FiSend,
   FiCopy,
@@ -7,17 +7,12 @@ import {
   FiCheckCircle,
   FiAlertCircle,
   FiPhone,
-  FiShield,
 } from "react-icons/fi";
 import { PROFILE_DATA } from "../data/portfolioData";
 import Reveal from "./Reveal";
 
 const INITIAL_FORM = { name: "", email: "", subject: "", message: "" };
 const WEB3FORMS_ACCESS_KEY = import.meta.env.VITE_WEB3FORMS_ACCESS_KEY || "";
-const TURNSTILE_SITE_KEY = import.meta.env.VITE_TURNSTILE_SITE_KEY || "";
-const TURNSTILE_SCRIPT_ID = "cf-turnstile-script";
-const TURNSTILE_SCRIPT_SRC =
-  "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
 
 function normalizePhoneDigits(phone = "") {
   return String(phone).replace(/[^\d]/g, "");
@@ -31,11 +26,6 @@ export default function Contact({ onShowToast }) {
   const [copiedEmail, setCopiedEmail] = useState(false);
   const [copiedPhone, setCopiedPhone] = useState(false);
 
-  const [captchaToken, setCaptchaToken] = useState("");
-  const [captchaReady, setCaptchaReady] = useState(false);
-  const captchaContainerRef = useRef(null);
-  const widgetIdRef = useRef(null);
-
   const email = PROFILE_DATA?.email || "";
   const phone = PROFILE_DATA?.phone || "";
   const phoneDigits = normalizePhoneDigits(phone);
@@ -46,92 +36,6 @@ export default function Contact({ onShowToast }) {
   const socials = Array.isArray(PROFILE_DATA?.socials)
     ? PROFILE_DATA.socials.filter((s) => s?.name && s?.url)
     : [];
-
-  useEffect(() => {
-    if (!TURNSTILE_SITE_KEY) return;
-
-    let cancelled = false;
-
-    const renderTurnstileWidget = () => {
-      if (
-        cancelled ||
-        !captchaContainerRef.current ||
-        !window.turnstile ||
-        widgetIdRef.current !== null
-      ) {
-        return;
-      }
-
-      widgetIdRef.current = window.turnstile.render(
-        captchaContainerRef.current,
-        {
-          sitekey: TURNSTILE_SITE_KEY,
-          theme: "auto",
-          callback: (token) => {
-            if (cancelled) return;
-            setCaptchaToken(token || "");
-            setErrors((prev) => {
-              if (!prev.captcha) return prev;
-              const next = { ...prev };
-              delete next.captcha;
-              return next;
-            });
-          },
-          "expired-callback": () => {
-            if (cancelled) return;
-            setCaptchaToken("");
-          },
-          "error-callback": () => {
-            if (cancelled) return;
-            setCaptchaToken("");
-          },
-        }
-      );
-
-      setCaptchaReady(true);
-    };
-
-    if (window.turnstile) {
-      renderTurnstileWidget();
-    } else {
-      let script = document.getElementById(TURNSTILE_SCRIPT_ID);
-      if (!script) {
-        script = document.createElement("script");
-        script.id = TURNSTILE_SCRIPT_ID;
-        script.src = TURNSTILE_SCRIPT_SRC;
-        script.async = true;
-        script.defer = true;
-        document.head.appendChild(script);
-      }
-
-      const handleLoad = () => renderTurnstileWidget();
-      script.addEventListener("load", handleLoad);
-
-      return () => {
-        cancelled = true;
-        script.removeEventListener("load", handleLoad);
-        if (window.turnstile && widgetIdRef.current !== null) {
-          window.turnstile.remove(widgetIdRef.current);
-          widgetIdRef.current = null;
-        }
-      };
-    }
-
-    return () => {
-      cancelled = true;
-      if (window.turnstile && widgetIdRef.current !== null) {
-        window.turnstile.remove(widgetIdRef.current);
-        widgetIdRef.current = null;
-      }
-    };
-  }, []);
-
-  const resetCaptcha = () => {
-    setCaptchaToken("");
-    if (window.turnstile && widgetIdRef.current !== null) {
-      window.turnstile.reset(widgetIdRef.current);
-    }
-  };
 
   const validate = (values) => {
     const nextErrors = {};
@@ -145,9 +49,6 @@ export default function Contact({ onShowToast }) {
       nextErrors.message = "Pesan tidak boleh kosong.";
     } else if (values.message.trim().length < 10) {
       nextErrors.message = "Tuliskan pesan minimal 10 karakter.";
-    }
-    if (TURNSTILE_SITE_KEY && !captchaToken) {
-      nextErrors.captcha = "Selesaikan verifikasi captcha terlebih dahulu.";
     }
     return nextErrors;
   };
@@ -198,7 +99,6 @@ export default function Contact({ onShowToast }) {
           `Pesan Portofolio dari ${formData.name.trim()}`,
         message: formData.message.trim(),
         from_name: PROFILE_DATA?.name || "Portfolio Contact Form",
-        ...(captchaToken ? { "cf-turnstile-response": captchaToken } : {}),
       };
 
       const res = await fetch("https://api.web3forms.com/submit", {
@@ -219,7 +119,6 @@ export default function Contact({ onShowToast }) {
         setStatusBanner({ type: "success", text: successText });
         onShowToast?.("Pesan berhasil dikirim.");
         setFormData(INITIAL_FORM);
-        resetCaptcha();
       } else {
         setStatusBanner({
           type: "error",
@@ -228,7 +127,6 @@ export default function Contact({ onShowToast }) {
             "Pesan gagal dikirim. Silakan coba lagi atau hubungi via email langsung.",
         });
         onShowToast?.("Gagal mengirim pesan.");
-        resetCaptcha();
       }
     } catch {
       setStatusBanner({
@@ -236,7 +134,6 @@ export default function Contact({ onShowToast }) {
         text: "Terjadi gangguan jaringan saat mengirim pesan. Silakan coba lagi.",
       });
       onShowToast?.("Koneksi terganggu saat mengirim pesan.");
-      resetCaptcha();
     } finally {
       setIsSubmitting(false);
     }
@@ -559,29 +456,6 @@ export default function Contact({ onShowToast }) {
                   </p>
                 )}
               </div>
-
-              {TURNSTILE_SITE_KEY && (
-                <div className="mt-5 rounded-2xl border border-[var(--border-hairline)] bg-[var(--bg-canvas)]/70 p-4">
-                  <div className="mb-2.5 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-[var(--text-secondary)]">
-                    <FiShield
-                      className="h-3.5 w-3.5 text-amber-700 dark:text-amber-400"
-                      aria-hidden="true"
-                    />
-                    <span>Verifikasi Keamanan *</span>
-                  </div>
-                  <div ref={captchaContainerRef} className="min-h-[65px]" />
-                  {!captchaReady && (
-                    <p className="text-xs text-[var(--text-secondary)]">
-                      Memuat verifikasi keamanan...
-                    </p>
-                  )}
-                  {errors.captcha && (
-                    <p className="mt-2 text-xs font-medium text-rose-600 dark:text-rose-400">
-                      {errors.captcha}
-                    </p>
-                  )}
-                </div>
-              )}
 
               <div className="mt-6 flex flex-col justify-between gap-4 border-t border-[var(--border-hairline)] pt-5 sm:flex-row sm:items-center">
                 <p className="text-xs text-[var(--text-secondary)]">
