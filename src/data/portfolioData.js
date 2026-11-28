@@ -28,6 +28,8 @@ export const PROFILE_DATA = {
   name: "Abdul Hafizh Kustiawan",
   role: "Frontend Developer & UI/UX Enthusiast",
   email: "hazzwayan.std@gmail.com",
+  phone: "+62 822-4713-4797", // ganti dengan nomor aslimu
+  whatsappUrl: "wa.me/+6282247134797", // ganti dengan nomor WhatsApp-mu (format: wa.me/<nomor>)
   availability: "Available for Collaboration",
   heroHeadline:
     "Crafting Seamless Experiences: Frontend Developer & UI/UX Enthusiast",
@@ -288,7 +290,7 @@ export const PROJECTS_DATA = [
       },
 ],
     liveUrl: "https://command-center-pribadi.ai.studio/",
-    repoUrl: "",
+    repoUrl: "https://alhukaikah.my.id",
     description:"Aplikasi web dashboard manajemen tugas harian yang dirancang untuk membantu pengguna mengatur dan memprioritaskan pekerjaan mereka dengan lebih efisien. Dengan fitur filter status dan prioritas, pengguna dapat dengan mudah melihat tugas yang perlu diselesaikan terlebih dahulu. Data tugas disimpan secara aman di Database, memungkinkan akses dari berbagai perangkat.",
     caseStudy: {
       challenge:

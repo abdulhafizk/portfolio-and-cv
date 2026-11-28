@@ -2,10 +2,10 @@ import { useEffect } from "react";
 import {
   FiArrowLeft,
   FiArrowRight,
-  FiArrowUpRight,
   FiCheckCircle,
   FiCode,
   FiFileText,
+  FiGlobe,
   FiLayers,
 } from "react-icons/fi";
 import ProjectGallery from "./ProjectGallery";
@@ -72,27 +72,38 @@ export default function ProjectDetailPage({
     project.summary ||
     "";
 
+  const demoUrl = project.demoUrl || project.liveUrl || "";
+  const repoUrl = project.repoUrl || project.githubUrl || "";
+
   const renderHighlightsCard = (extraClass = "") => (
     <section
       className={`rounded-3xl border border-[var(--border-hairline)] bg-[var(--bg-surface)] p-6 transition-colors duration-200 hover:border-amber-600/35 sm:p-7 ${extraClass}`}
     >
       <div className="flex items-center justify-between gap-2 border-b border-[var(--border-hairline)] pb-4">
-        <h2 className="text-xs font-bold uppercase tracking-[0.18em] text-[var(--text-primary)]">
-          Poin Utama Implementasi
-        </h2>
-        <span className="rounded-full bg-[var(--bg-subtle)] px-2.5 py-0.5 text-[11px] font-semibold text-[var(--text-secondary)]">
+        <div className="flex items-center gap-2.5">
+          <FiCheckCircle
+            className="h-4 w-4 text-emerald-600 dark:text-emerald-400"
+            aria-hidden="true"
+          />
+          <h2 className="text-xs font-bold uppercase tracking-[0.18em] text-[var(--text-primary)]">
+            Poin Utama Implementasi
+          </h2>
+        </div>
+        <span className="rounded-full border border-[var(--border-hairline)] bg-[var(--bg-subtle)] px-2.5 py-0.5 text-[11px] font-semibold text-[var(--text-secondary)]">
           {highlights.length} Poin
         </span>
       </div>
 
-      <ul className="mt-5 space-y-3.5 text-sm text-[var(--text-secondary)]">
+      <ul className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {highlights.map((item, idx) => (
-          <li key={`${project.id}-hl-${idx}`} className="flex items-start gap-3">
-            <FiCheckCircle
-              className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400"
-              aria-hidden="true"
-            />
-            <span className="leading-relaxed text-[var(--text-primary)]/90">
+          <li
+            key={`${project.id}-hl-${idx}`}
+            className="flex items-start gap-3 rounded-2xl border border-[var(--border-hairline)]/80 bg-[var(--bg-subtle)]/45 p-4 text-sm transition-colors duration-200 hover:border-emerald-600/35"
+          >
+            <span className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-500/12 font-mono text-[10px] font-bold text-emerald-700 dark:text-emerald-400">
+              {String(idx + 1).padStart(2, "0")}
+            </span>
+            <span className="text-xs leading-relaxed text-[var(--text-primary)]/90 sm:text-sm">
               {item}
             </span>
           </li>
@@ -163,26 +174,26 @@ export default function ProjectDetailPage({
           {project.summary}
         </p>
 
-        {(project.demoUrl || project.repoUrl) && (
+        {(demoUrl || repoUrl) && (
           <div className="flex flex-wrap items-center gap-3 pt-1">
-            {project.demoUrl && (
+            {demoUrl && (
               <a
-                href={project.demoUrl}
+                href={demoUrl}
                 target="_blank"
                 rel="noreferrer"
                 className="group/demo inline-flex cursor-pointer items-center gap-2 rounded-full bg-amber-400 px-5 py-2.5 text-xs font-bold text-stone-950 transition-all duration-200 hover:-translate-y-0.5 hover:bg-amber-300 active:scale-[0.98] focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
               >
-                <span>Kunjungi Demo</span>
-                <FiArrowUpRight
-                  className="h-4 w-4 transition-transform duration-200 group-hover/demo:translate-x-0.5 group-hover/demo:-translate-y-0.5"
+                <FiGlobe
+                  className="h-3.5 w-3.5 transition-transform duration-200 group-hover/demo:scale-105"
                   aria-hidden="true"
                 />
+                <span>Kunjungi Demo</span>
               </a>
             )}
 
-            {project.repoUrl && (
+            {repoUrl && (
               <a
-                href={project.repoUrl}
+                href={repoUrl}
                 target="_blank"
                 rel="noreferrer"
                 className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-[var(--border-hairline)] bg-[var(--bg-surface)] px-5 py-2.5 text-xs font-semibold text-[var(--text-primary)] transition-all duration-200 hover:-translate-y-0.5 hover:border-amber-600/50 active:scale-[0.98] focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
@@ -208,45 +219,67 @@ export default function ProjectDetailPage({
         </div>
       )}
 
-      {/* Deskripsi Detail Proyek di Bawah Foto */}
-      {projectDescription && (
-        <section className="mt-7 rounded-3xl border border-[var(--border-hairline)] bg-[var(--bg-surface)] p-6 transition-colors duration-200 hover:border-amber-600/35 sm:p-7">
-          <div className="flex items-center gap-2.5 border-b border-[var(--border-hairline)] pb-3.5">
-            <FiFileText
-              className="h-4 w-4 text-amber-700 dark:text-amber-400"
-              aria-hidden="true"
-            />
-            <h2 className="text-xs font-bold uppercase tracking-[0.18em] text-[var(--text-primary)]">
-              Deskripsi Proyek
-            </h2>
-          </div>
+      {/* Bento Ringkasan: Deskripsi + Tantangan & Solusi */}
+      {(projectDescription || challenge || solution) && (
+        <div className="mt-7 grid gap-5 md:grid-cols-12">
+          {projectDescription && (
+            <section className="rounded-3xl border border-[var(--border-hairline)] bg-[var(--bg-surface)] p-6 transition-colors duration-200 hover:border-amber-600/35 sm:p-7 md:col-span-12">
+              <div className="flex items-center justify-between gap-2 border-b border-[var(--border-hairline)] pb-3.5">
+                <div className="flex items-center gap-2.5">
+                  <FiFileText
+                    className="h-4 w-4 text-amber-700 dark:text-amber-400"
+                    aria-hidden="true"
+                  />
+                  <h2 className="text-xs font-bold uppercase tracking-[0.18em] text-[var(--text-primary)]">
+                    Deskripsi Proyek
+                  </h2>
+                </div>
+                <span className="text-[11px] text-[var(--text-secondary)]">
+                  Ringkasan Sistem
+                </span>
+              </div>
 
-          <p className="mt-3.5 whitespace-pre-line text-sm leading-relaxed text-[var(--text-secondary)] sm:text-base">
-            {projectDescription}
-          </p>
-        </section>
-      )}
-
-      {/* Tantangan & Solusi dari caseStudy */}
-      {(challenge || solution) && (
-        <div className="mt-7 grid gap-6 md:grid-cols-2">
-          {challenge && (
-            <section className="rounded-3xl border border-[var(--border-hairline)] bg-[var(--bg-surface)] p-6 transition-colors duration-200 hover:border-amber-600/35 sm:p-7">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-amber-700 dark:text-amber-400">
-                Latar Belakang & Tantangan
+              <p className="mt-4 whitespace-pre-line text-sm leading-relaxed text-[var(--text-secondary)] sm:text-base">
+                {projectDescription}
               </p>
-              <p className="mt-3 text-sm leading-relaxed text-[var(--text-secondary)]">
+            </section>
+          )}
+
+          {challenge && (
+            <section
+              className={`rounded-3xl border border-[var(--border-hairline)] bg-[var(--bg-surface)] p-6 transition-colors duration-200 hover:border-amber-600/35 sm:p-7 ${
+                solution ? "md:col-span-6" : "md:col-span-12"
+              }`}
+            >
+              <div className="flex items-center justify-between gap-2 border-b border-[var(--border-hairline)] pb-3">
+                <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-amber-700 dark:text-amber-400">
+                  Latar Belakang & Tantangan
+                </p>
+                <span className="rounded-full bg-amber-500/10 px-2.5 py-0.5 text-[10px] font-semibold text-amber-700 dark:text-amber-300">
+                  Masalah
+                </span>
+              </div>
+              <p className="mt-3.5 text-sm leading-relaxed text-[var(--text-secondary)]">
                 {challenge}
               </p>
             </section>
           )}
 
           {solution && (
-            <section className="rounded-3xl border border-[var(--border-hairline)] bg-[var(--bg-surface)] p-6 transition-colors duration-200 hover:border-emerald-600/35 sm:p-7">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-700 dark:text-emerald-400">
-                Pendekatan & Solusi
-              </p>
-              <p className="mt-3 text-sm leading-relaxed text-[var(--text-secondary)]">
+            <section
+              className={`rounded-3xl border border-[var(--border-hairline)] bg-[var(--bg-surface)] p-6 transition-colors duration-200 hover:border-emerald-600/35 sm:p-7 ${
+                challenge ? "md:col-span-6" : "md:col-span-12"
+              }`}
+            >
+              <div className="flex items-center justify-between gap-2 border-b border-[var(--border-hairline)] pb-3">
+                <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-emerald-700 dark:text-emerald-400">
+                  Pendekatan & Solusi
+                </p>
+                <span className="rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-[10px] font-semibold text-emerald-700 dark:text-emerald-300">
+                  Solusi
+                </span>
+              </div>
+              <p className="mt-3.5 text-sm leading-relaxed text-[var(--text-secondary)]">
                 {solution}
               </p>
             </section>
@@ -263,18 +296,23 @@ export default function ProjectDetailPage({
 
       {/* Poin Utama Implementasi & Teknologi Digunakan */}
       {techStackGroups.length > 0 ? (
-        <div className="mt-7 space-y-7">
+        <div className="mt-7 space-y-6">
           {renderHighlightsCard()}
 
           <section className="rounded-3xl border border-[var(--border-hairline)] bg-[var(--bg-surface)] p-6 transition-colors duration-200 hover:border-amber-600/35 sm:p-7">
             <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--border-hairline)] pb-4">
-              <h2 className="text-xs font-bold uppercase tracking-[0.18em] text-[var(--text-primary)]">
-                Teknologi Digunakan
-              </h2>
-              <FiLayers
-                className="h-4 w-4 text-amber-700 dark:text-amber-400"
-                aria-hidden="true"
-              />
+              <div className="flex items-center gap-2.5">
+                <FiLayers
+                  className="h-4 w-4 text-amber-700 dark:text-amber-400"
+                  aria-hidden="true"
+                />
+                <h2 className="text-xs font-bold uppercase tracking-[0.18em] text-[var(--text-primary)]">
+                  Teknologi Digunakan
+                </h2>
+              </div>
+              <span className="rounded-full border border-[var(--border-hairline)] bg-[var(--bg-subtle)] px-2.5 py-0.5 text-[11px] font-semibold text-[var(--text-secondary)]">
+                {techStackGroups.length} Modul Stack
+              </span>
             </div>
 
             {techStack.length > 0 && (
@@ -290,44 +328,51 @@ export default function ProjectDetailPage({
               </div>
             )}
 
-            <div className="mt-5 grid gap-5 md:grid-cols-2">
+            <div className="mt-6 grid gap-5 md:grid-cols-2">
               {techStackGroups.map((group, gIdx) => (
                 <div
                   key={`${project.id}-group-${gIdx}`}
-                  className="rounded-2xl border border-[var(--border-hairline)] bg-[var(--bg-subtle)]/55 p-5"
+                  className="flex flex-col justify-between rounded-2xl border border-[var(--border-hairline)] bg-[var(--bg-subtle)]/45 p-5 transition-colors duration-200 hover:border-amber-600/30"
                 >
-                  <div className="flex items-center gap-2.5">
-                    <span className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-amber-400/15 font-mono text-[11px] font-bold text-amber-700 dark:text-amber-400">
-                      {String(gIdx + 1).padStart(2, "0")}
-                    </span>
-                    <h3 className="text-sm font-bold text-[var(--text-primary)]">
-                      {group.group}
-                    </h3>
+                  <div>
+                    <div className="flex items-center justify-between gap-2.5 border-b border-[var(--border-hairline)] pb-3">
+                      <div className="flex items-center gap-2.5">
+                        <span className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-amber-400/15 font-mono text-[11px] font-bold text-amber-700 dark:text-amber-400">
+                          {String(gIdx + 1).padStart(2, "0")}
+                        </span>
+                        <h3 className="text-sm font-bold text-[var(--text-primary)]">
+                          {group.group}
+                        </h3>
+                      </div>
+                      <span className="text-[11px] font-medium text-[var(--text-secondary)]">
+                        {group.items.length} item
+                      </span>
+                    </div>
+
+                    <ul className="mt-3.5 divide-y divide-[var(--border-hairline)]/80">
+                      {group.items.map((item, iIdx) => {
+                        const isObj = typeof item === "object" && item !== null;
+                        const title = isObj ? item.name : String(item);
+                        const desc = isObj ? item.detail : "";
+
+                        return (
+                          <li
+                            key={`${project.id}-group-${gIdx}-item-${iIdx}`}
+                            className="py-2.5 text-xs leading-relaxed first:pt-1 last:pb-0.5 sm:text-sm"
+                          >
+                            <div className="font-semibold text-[var(--text-primary)]">
+                              {title}
+                            </div>
+                            {desc && (
+                              <p className="mt-0.5 text-xs leading-relaxed text-[var(--text-secondary)]">
+                                {desc}
+                              </p>
+                            )}
+                          </li>
+                        );
+                      })}
+                    </ul>
                   </div>
-
-                  <ul className="mt-3.5 space-y-2.5">
-                    {group.items.map((item, iIdx) => {
-                      const isObj = typeof item === "object" && item !== null;
-                      const title = isObj ? item.name : String(item);
-                      const desc = isObj ? item.detail : "";
-
-                      return (
-                        <li
-                          key={`${project.id}-group-${gIdx}-item-${iIdx}`}
-                          className="text-xs leading-relaxed sm:text-sm"
-                        >
-                          <span className="font-semibold text-[var(--text-primary)]">
-                            {title}
-                          </span>
-                          {desc && (
-                            <span className="text-[var(--text-secondary)]">
-                              {" "}— {desc}
-                            </span>
-                          )}
-                        </li>
-                      );
-                    })}
-                  </ul>
                 </div>
               ))}
             </div>

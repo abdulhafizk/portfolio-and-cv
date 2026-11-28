@@ -1,26 +1,137 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   FiSend,
   FiCopy,
   FiCheck,
   FiArrowUpRight,
   FiCheckCircle,
+  FiAlertCircle,
+  FiPhone,
+  FiShield,
 } from "react-icons/fi";
 import { PROFILE_DATA } from "../data/portfolioData";
 import Reveal from "./Reveal";
 
 const INITIAL_FORM = { name: "", email: "", subject: "", message: "" };
+const WEB3FORMS_ACCESS_KEY = import.meta.env.VITE_WEB3FORMS_ACCESS_KEY || "";
+const TURNSTILE_SITE_KEY = import.meta.env.VITE_TURNSTILE_SITE_KEY || "";
+const TURNSTILE_SCRIPT_ID = "cf-turnstile-script";
+const TURNSTILE_SCRIPT_SRC =
+  "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
+
+function normalizePhoneDigits(phone = "") {
+  return String(phone).replace(/[^\d]/g, "");
+}
 
 export default function Contact({ onShowToast }) {
   const [formData, setFormData] = useState(INITIAL_FORM);
   const [errors, setErrors] = useState({});
-  const [submittedMessage, setSubmittedMessage] = useState("");
-  const [copied, setCopied] = useState(false);
+  const [statusBanner, setStatusBanner] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [copiedEmail, setCopiedEmail] = useState(false);
+  const [copiedPhone, setCopiedPhone] = useState(false);
+
+  const [captchaToken, setCaptchaToken] = useState("");
+  const [captchaReady, setCaptchaReady] = useState(false);
+  const captchaContainerRef = useRef(null);
+  const widgetIdRef = useRef(null);
 
   const email = PROFILE_DATA?.email || "";
+  const phone = PROFILE_DATA?.phone || "";
+  const phoneDigits = normalizePhoneDigits(phone);
+  const phoneHref =
+    PROFILE_DATA?.whatsappUrl ||
+    (phoneDigits ? `https://wa.me/${phoneDigits}` : `tel:${phoneDigits}`);
+
   const socials = Array.isArray(PROFILE_DATA?.socials)
     ? PROFILE_DATA.socials.filter((s) => s?.name && s?.url)
     : [];
+
+  useEffect(() => {
+    if (!TURNSTILE_SITE_KEY) return;
+
+    let cancelled = false;
+
+    const renderTurnstileWidget = () => {
+      if (
+        cancelled ||
+        !captchaContainerRef.current ||
+        !window.turnstile ||
+        widgetIdRef.current !== null
+      ) {
+        return;
+      }
+
+      widgetIdRef.current = window.turnstile.render(
+        captchaContainerRef.current,
+        {
+          sitekey: TURNSTILE_SITE_KEY,
+          theme: "auto",
+          callback: (token) => {
+            if (cancelled) return;
+            setCaptchaToken(token || "");
+            setErrors((prev) => {
+              if (!prev.captcha) return prev;
+              const next = { ...prev };
+              delete next.captcha;
+              return next;
+            });
+          },
+          "expired-callback": () => {
+            if (cancelled) return;
+            setCaptchaToken("");
+          },
+          "error-callback": () => {
+            if (cancelled) return;
+            setCaptchaToken("");
+          },
+        }
+      );
+
+      setCaptchaReady(true);
+    };
+
+    if (window.turnstile) {
+      renderTurnstileWidget();
+    } else {
+      let script = document.getElementById(TURNSTILE_SCRIPT_ID);
+      if (!script) {
+        script = document.createElement("script");
+        script.id = TURNSTILE_SCRIPT_ID;
+        script.src = TURNSTILE_SCRIPT_SRC;
+        script.async = true;
+        script.defer = true;
+        document.head.appendChild(script);
+      }
+
+      const handleLoad = () => renderTurnstileWidget();
+      script.addEventListener("load", handleLoad);
+
+      return () => {
+        cancelled = true;
+        script.removeEventListener("load", handleLoad);
+        if (window.turnstile && widgetIdRef.current !== null) {
+          window.turnstile.remove(widgetIdRef.current);
+          widgetIdRef.current = null;
+        }
+      };
+    }
+
+    return () => {
+      cancelled = true;
+      if (window.turnstile && widgetIdRef.current !== null) {
+        window.turnstile.remove(widgetIdRef.current);
+        widgetIdRef.current = null;
+      }
+    };
+  }, []);
+
+  const resetCaptcha = () => {
+    setCaptchaToken("");
+    if (window.turnstile && widgetIdRef.current !== null) {
+      window.turnstile.reset(widgetIdRef.current);
+    }
+  };
 
   const validate = (values) => {
     const nextErrors = {};
@@ -35,13 +146,16 @@ export default function Contact({ onShowToast }) {
     } else if (values.message.trim().length < 10) {
       nextErrors.message = "Tuliskan pesan minimal 10 karakter.";
     }
+    if (TURNSTILE_SITE_KEY && !captchaToken) {
+      nextErrors.captcha = "Selesaikan verifikasi captcha terlebih dahulu.";
+    }
     return nextErrors;
   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-    setSubmittedMessage("");
+    if (statusBanner) setStatusBanner(null);
     if (errors[name]) {
       setErrors((prev) => {
         const updated = { ...prev };
@@ -51,32 +165,104 @@ export default function Contact({ onShowToast }) {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    if (isSubmitting) return;
+
     const validationErrors = validate(formData);
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
       return;
     }
+
+    if (!WEB3FORMS_ACCESS_KEY) {
+      setStatusBanner({
+        type: "error",
+        text: "VITE_WEB3FORMS_ACCESS_KEY belum diatur di file .env.",
+      });
+      onShowToast?.("Konfigurasi pengiriman pesan belum lengkap.");
+      return;
+    }
+
     setErrors({});
-    setSubmittedMessage(
-      `Terima kasih, ${formData.name.trim()}. Pesan Anda telah divalidasi${
-        email ? ` untuk ${email}` : ""
-      }.`
-    );
-    onShowToast?.("Pesan berhasil divalidasi.");
-    setFormData(INITIAL_FORM);
+    setIsSubmitting(true);
+    setStatusBanner(null);
+
+    try {
+      const payload = {
+        access_key: WEB3FORMS_ACCESS_KEY,
+        name: formData.name.trim(),
+        email: formData.email.trim(),
+        subject:
+          formData.subject.trim() ||
+          `Pesan Portofolio dari ${formData.name.trim()}`,
+        message: formData.message.trim(),
+        from_name: PROFILE_DATA?.name || "Portfolio Contact Form",
+        ...(captchaToken ? { "cf-turnstile-response": captchaToken } : {}),
+      };
+
+      const res = await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json();
+
+      if (res.ok && data?.success) {
+        const successText = `Terima kasih, ${formData.name.trim()}. Pesan Anda telah terkirim${
+          email ? ` ke ${email}` : ""
+        }.`;
+        setStatusBanner({ type: "success", text: successText });
+        onShowToast?.("Pesan berhasil dikirim.");
+        setFormData(INITIAL_FORM);
+        resetCaptcha();
+      } else {
+        setStatusBanner({
+          type: "error",
+          text:
+            data?.message ||
+            "Pesan gagal dikirim. Silakan coba lagi atau hubungi via email langsung.",
+        });
+        onShowToast?.("Gagal mengirim pesan.");
+        resetCaptcha();
+      }
+    } catch {
+      setStatusBanner({
+        type: "error",
+        text: "Terjadi gangguan jaringan saat mengirim pesan. Silakan coba lagi.",
+      });
+      onShowToast?.("Koneksi terganggu saat mengirim pesan.");
+      resetCaptcha();
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleCopyEmail = async () => {
     if (!email) return;
     try {
       await navigator.clipboard.writeText(email);
-      setCopied(true);
+      setCopiedEmail(true);
       onShowToast?.(`Email ${email} disalin.`);
-      setTimeout(() => setCopied(false), 2000);
+      setTimeout(() => setCopiedEmail(false), 2000);
     } catch {
       onShowToast?.("Gagal menyalin email.");
+    }
+  };
+
+  const handleCopyPhone = async () => {
+    if (!phone) return;
+    try {
+      await navigator.clipboard.writeText(phone);
+      setCopiedPhone(true);
+      onShowToast?.(`Nomor ${phone} disalin.`);
+      setTimeout(() => setCopiedPhone(false), 2000);
+    } catch {
+      onShowToast?.("Gagal menyalin nomor telepon.");
     }
   };
 
@@ -104,41 +290,85 @@ export default function Contact({ onShowToast }) {
               </p>
             </div>
 
-            {email && (
-              <div className="rounded-3xl border border-[var(--border-hairline)] bg-[var(--bg-surface)] p-6 transition-colors duration-200 hover:border-amber-600/35">
-                <p className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text-secondary)]">
-                  Email Langsung
-                </p>
-                <div className="mt-2 flex flex-wrap items-center justify-between gap-3">
-                  <a
-                    href={`mailto:${email}`}
-                    className="text-sm font-semibold text-[var(--text-primary)] underline-offset-4 transition-colors hover:text-amber-700 hover:underline dark:hover:text-amber-400"
-                  >
-                    {email}
-                  </a>
-                  <button
-                    type="button"
-                    onClick={handleCopyEmail}
-                    className="inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-[var(--border-hairline)] bg-[var(--bg-subtle)] px-3.5 py-1.5 text-xs font-semibold text-[var(--text-primary)] transition-all duration-200 hover:border-amber-600/50 active:scale-[0.98] focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
-                  >
-                    {copied ? (
-                      <>
-                        <FiCheck
-                          className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400"
-                          aria-hidden="true"
-                        />
-                        <span>Tersalin</span>
-                      </>
-                    ) : (
-                      <>
-                        <FiCopy className="h-3.5 w-3.5" aria-hidden="true" />
-                        <span>Salin</span>
-                      </>
-                    )}
-                  </button>
+            <div className="space-y-3.5">
+              {email && (
+                <div className="rounded-3xl border border-[var(--border-hairline)] bg-[var(--bg-surface)] p-5 transition-colors duration-200 hover:border-amber-600/35 sm:p-6">
+                  <p className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text-secondary)]">
+                    Email Langsung
+                  </p>
+                  <div className="mt-2 flex flex-wrap items-center justify-between gap-3">
+                    <a
+                      href={`mailto:${email}`}
+                      className="text-sm font-semibold text-[var(--text-primary)] underline-offset-4 transition-colors hover:text-amber-700 hover:underline dark:hover:text-amber-400"
+                    >
+                      {email}
+                    </a>
+                    <button
+                      type="button"
+                      onClick={handleCopyEmail}
+                      className="inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-[var(--border-hairline)] bg-[var(--bg-subtle)] px-3.5 py-1.5 text-xs font-semibold text-[var(--text-primary)] transition-all duration-200 hover:border-amber-600/50 active:scale-[0.98] focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
+                    >
+                      {copiedEmail ? (
+                        <>
+                          <FiCheck
+                            className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400"
+                            aria-hidden="true"
+                          />
+                          <span>Tersalin</span>
+                        </>
+                      ) : (
+                        <>
+                          <FiCopy className="h-3.5 w-3.5" aria-hidden="true" />
+                          <span>Salin</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
+
+              {phone && (
+                <div className="rounded-3xl border border-[var(--border-hairline)] bg-[var(--bg-surface)] p-5 transition-colors duration-200 hover:border-amber-600/35 sm:p-6">
+                  <p className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-[var(--text-secondary)]">
+                    <FiPhone
+                      className="h-3 w-3 text-amber-700 dark:text-amber-400"
+                      aria-hidden="true"
+                    />
+                    <span>Telepon / WhatsApp</span>
+                  </p>
+                  <div className="mt-2 flex flex-wrap items-center justify-between gap-3">
+                    <a
+                      href={phoneHref}
+                      target={phoneHref.startsWith("http") ? "_blank" : undefined}
+                      rel={phoneHref.startsWith("http") ? "noreferrer" : undefined}
+                      className="text-sm font-semibold text-[var(--text-primary)] underline-offset-4 transition-colors hover:text-amber-700 hover:underline dark:hover:text-amber-400"
+                    >
+                      {phone}
+                    </a>
+                    <button
+                      type="button"
+                      onClick={handleCopyPhone}
+                      className="inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-[var(--border-hairline)] bg-[var(--bg-subtle)] px-3.5 py-1.5 text-xs font-semibold text-[var(--text-primary)] transition-all duration-200 hover:border-amber-600/50 active:scale-[0.98] focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
+                    >
+                      {copiedPhone ? (
+                        <>
+                          <FiCheck
+                            className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400"
+                            aria-hidden="true"
+                          />
+                          <span>Tersalin</span>
+                        </>
+                      ) : (
+                        <>
+                          <FiCopy className="h-3.5 w-3.5" aria-hidden="true" />
+                          <span>Salin</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
 
             {socials.length > 0 && (
               <div className="space-y-3">
@@ -170,18 +400,43 @@ export default function Contact({ onShowToast }) {
             <form
               onSubmit={handleSubmit}
               noValidate
-              className="rounded-3xl border border-[var(--border-hairline)] bg-[var(--bg-surface)] p-7 transition-colors duration-200 hover:border-amber-600/35 sm:p-9"
+              className="rounded-3xl border border-[var(--border-hairline)] bg-[var(--bg-surface)] p-6 transition-colors duration-200 hover:border-amber-600/35 sm:p-9"
             >
-              {submittedMessage && (
+              <div className="mb-6 flex flex-wrap items-end justify-between gap-2 border-b border-[var(--border-hairline)] pb-4">
+                <div>
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-amber-700 dark:text-amber-400">
+                    Formulir Pesan
+                  </p>
+                  <h3 className="mt-1 text-lg font-bold tracking-tight text-[var(--text-primary)]">
+                    Kirim detail proyek atau pertanyaan
+                  </h3>
+                </div>
+                <span className="text-[11px] text-[var(--text-secondary)]">
+                  Wajib diisi bertanda *
+                </span>
+              </div>
+
+              {statusBanner && (
                 <div
                   role="status"
-                  className="modal-animate-in mb-6 flex items-start gap-3 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-4 text-sm text-emerald-900 dark:text-emerald-200"
+                  className={`modal-animate-in mb-6 flex items-start gap-3 rounded-2xl border p-4 text-sm ${
+                    statusBanner.type === "success"
+                      ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-900 dark:text-emerald-200"
+                      : "border-rose-500/30 bg-rose-500/10 text-rose-900 dark:text-rose-200"
+                  }`}
                 >
-                  <FiCheckCircle
-                    className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400"
-                    aria-hidden="true"
-                  />
-                  <span>{submittedMessage}</span>
+                  {statusBanner.type === "success" ? (
+                    <FiCheckCircle
+                      className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400"
+                      aria-hidden="true"
+                    />
+                  ) : (
+                    <FiAlertCircle
+                      className="mt-0.5 h-4 w-4 shrink-0 text-rose-600 dark:text-rose-400"
+                      aria-hidden="true"
+                    />
+                  )}
+                  <span>{statusBanner.text}</span>
                 </div>
               )}
 
@@ -197,15 +452,16 @@ export default function Contact({ onShowToast }) {
                     id="contact-name"
                     name="name"
                     type="text"
+                    disabled={isSubmitting}
                     value={formData.name}
                     onChange={handleChange}
                     placeholder="Nama Anda"
                     aria-invalid={Boolean(errors.name)}
                     aria-describedby={errors.name ? "error-name" : undefined}
-                    className={`mt-2 w-full rounded-xl border bg-[var(--bg-canvas)] px-4 py-3 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]/60 transition-colors duration-200 focus:outline-none focus:ring-2 ${
+                    className={`mt-2 w-full rounded-2xl border bg-[var(--bg-canvas)] px-4 py-3 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]/55 transition-colors duration-200 focus:outline-none focus:ring-2 disabled:opacity-60 ${
                       errors.name
                         ? "border-rose-500 focus:ring-rose-500"
-                        : "border-[var(--border-hairline)] hover:border-amber-600/35 focus:ring-amber-500"
+                        : "border-[var(--border-hairline)] hover:border-amber-600/35 focus:border-amber-500/60 focus:ring-amber-500/40"
                     }`}
                   />
                   {errors.name && (
@@ -229,15 +485,16 @@ export default function Contact({ onShowToast }) {
                     id="contact-email"
                     name="email"
                     type="email"
+                    disabled={isSubmitting}
                     value={formData.email}
                     onChange={handleChange}
                     placeholder="nama@email.com"
                     aria-invalid={Boolean(errors.email)}
                     aria-describedby={errors.email ? "error-email" : undefined}
-                    className={`mt-2 w-full rounded-xl border bg-[var(--bg-canvas)] px-4 py-3 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]/60 transition-colors duration-200 focus:outline-none focus:ring-2 ${
+                    className={`mt-2 w-full rounded-2xl border bg-[var(--bg-canvas)] px-4 py-3 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]/55 transition-colors duration-200 focus:outline-none focus:ring-2 disabled:opacity-60 ${
                       errors.email
                         ? "border-rose-500 focus:ring-rose-500"
-                        : "border-[var(--border-hairline)] hover:border-amber-600/35 focus:ring-amber-500"
+                        : "border-[var(--border-hairline)] hover:border-amber-600/35 focus:border-amber-500/60 focus:ring-amber-500/40"
                     }`}
                   />
                   {errors.email && (
@@ -262,10 +519,11 @@ export default function Contact({ onShowToast }) {
                   id="contact-subject"
                   name="subject"
                   type="text"
+                  disabled={isSubmitting}
                   value={formData.subject}
                   onChange={handleChange}
                   placeholder="Contoh: Diskusi proyek website / kolaborasi"
-                  className="mt-2 w-full rounded-xl border border-[var(--border-hairline)] bg-[var(--bg-canvas)] px-4 py-3 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]/60 transition-colors duration-200 hover:border-amber-600/35 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  className="mt-2 w-full rounded-2xl border border-[var(--border-hairline)] bg-[var(--bg-canvas)] px-4 py-3 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]/55 transition-colors duration-200 hover:border-amber-600/35 focus:border-amber-500/60 focus:outline-none focus:ring-2 focus:ring-amber-500/40 disabled:opacity-60"
                 />
               </div>
 
@@ -280,15 +538,16 @@ export default function Contact({ onShowToast }) {
                   id="contact-message"
                   name="message"
                   rows={4}
+                  disabled={isSubmitting}
                   value={formData.message}
                   onChange={handleChange}
                   placeholder="Ceritakan kebutuhan, lini masa, atau hal yang ingin didiskusikan..."
                   aria-invalid={Boolean(errors.message)}
                   aria-describedby={errors.message ? "error-message" : undefined}
-                  className={`mt-2 w-full rounded-xl border bg-[var(--bg-canvas)] px-4 py-3 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]/60 transition-colors duration-200 focus:outline-none focus:ring-2 ${
+                  className={`mt-2 w-full rounded-2xl border bg-[var(--bg-canvas)] px-4 py-3 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]/55 transition-colors duration-200 focus:outline-none focus:ring-2 disabled:opacity-60 ${
                     errors.message
                       ? "border-rose-500 focus:ring-rose-500"
-                      : "border-[var(--border-hairline)] hover:border-amber-600/35 focus:ring-amber-500"
+                      : "border-[var(--border-hairline)] hover:border-amber-600/35 focus:border-amber-500/60 focus:ring-amber-500/40"
                   }`}
                 />
                 {errors.message && (
@@ -301,12 +560,42 @@ export default function Contact({ onShowToast }) {
                 )}
               </div>
 
-              <div className="mt-6 flex justify-end">
+              {TURNSTILE_SITE_KEY && (
+                <div className="mt-5 rounded-2xl border border-[var(--border-hairline)] bg-[var(--bg-canvas)]/70 p-4">
+                  <div className="mb-2.5 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-[var(--text-secondary)]">
+                    <FiShield
+                      className="h-3.5 w-3.5 text-amber-700 dark:text-amber-400"
+                      aria-hidden="true"
+                    />
+                    <span>Verifikasi Keamanan *</span>
+                  </div>
+                  <div ref={captchaContainerRef} className="min-h-[65px]" />
+                  {!captchaReady && (
+                    <p className="text-xs text-[var(--text-secondary)]">
+                      Memuat verifikasi keamanan...
+                    </p>
+                  )}
+                  {errors.captcha && (
+                    <p className="mt-2 text-xs font-medium text-rose-600 dark:text-rose-400">
+                      {errors.captcha}
+                    </p>
+                  )}
+                </div>
+              )}
+
+              <div className="mt-6 flex flex-col justify-between gap-4 border-t border-[var(--border-hairline)] pt-5 sm:flex-row sm:items-center">
+                <p className="text-xs text-[var(--text-secondary)]">
+                  {isSubmitting
+                    ? "Sedang mengirim pesan..."
+                    : "Pesan akan langsung diteruskan ke email tujuan."}
+                </p>
+
                 <button
                   type="submit"
-                  className="group/submit inline-flex cursor-pointer items-center gap-2 rounded-full bg-stone-900 px-6 py-3.5 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-stone-800 active:scale-[0.98] focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 dark:bg-amber-400 dark:text-stone-950 dark:hover:bg-amber-300"
+                  disabled={isSubmitting}
+                  className="group/submit inline-flex shrink-0 cursor-pointer items-center justify-center gap-2 rounded-full bg-stone-900 px-6 py-3 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-stone-800 active:scale-[0.98] focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-amber-400 dark:text-stone-950 dark:hover:bg-amber-300"
                 >
-                  <span>Kirim Pesan</span>
+                  <span>{isSubmitting ? "Mengirim..." : "Kirim Pesan"}</span>
                   <FiSend
                     className="h-4 w-4 transition-transform duration-200 group-hover/submit:translate-x-0.5 group-hover/submit:-translate-y-0.5"
                     aria-hidden="true"
