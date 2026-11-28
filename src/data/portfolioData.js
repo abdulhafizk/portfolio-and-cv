@@ -2,6 +2,7 @@ import certIqtFair from "../assets/certificate/Abdul Hafizh Kustiawan_IQT Fair 2
 import certKalibrasiKisr from "../assets/certificate/Abdul Hafizh Kustiawan_Kalibrasi X KISR Al Badr 2026_November 2026.png";
 import certKalibrasiPdf from "../assets/certificate/Abdul Hafizh Kustiawan_Kalibrasi_October 2025.pdf";
 import certSagawa from "../assets/certificate/Abdul Hafizh Kustiawan_SAGAWA 2026_13 November 2026 .png";
+import certPialastim from "../assets/certificate/Abdul Hafizh Kustiawan_Piala STIM 2026_28 November 2026.jpg";
 
 import { buildProject1Gallery } from "../utils/projectGalleryLoader";
 import { buildProject2Gallery } from "../utils/projectGalleryLoader";
@@ -550,17 +551,6 @@ export const ACHIEVEMENTS_DATA = [
   {
     id: "ach-3",
     kind: "Sertifikat",
-    year: "2025",
-    title: "Kalibrasi October 2025",
-    issuer: "Penyelenggara Kalibrasi",
-    summary:
-      "Dokumen sertifikat dalam format PDF (klik 'Lihat Kredensial' untuk membuka berkas).",
-    image: "",
-    credentialUrl: certKalibrasiPdf,
-  },
-  {
-    id: "ach-4",
-    kind: "Sertifikat",
     year: "2026",
     title: "SAGAWA 2026 - 3rd Place",
     issuer: "Penyelenggara SAGAWA",
@@ -568,6 +558,28 @@ export const ACHIEVEMENTS_DATA = [
       "Sertifikat kegiatan SAGAWA 2026.",
     image: certSagawa,
     credentialUrl: "",
+  },
+    {
+    id: "ach-4",
+    kind: "Sertifikat",
+    year: "2026",
+    title: "PIALA STIM 2026",
+    issuer: "Penyelenggara Sekolah Tinggi Islam Al-Mukmin Ngruki",
+    summary:
+      "Sertifikat kegiatan PIALA STIM 2026.",
+    image: certPialastim,
+    credentialUrl: "",
+  },
+  {
+    id: "ach-5",
+    kind: "Sertifikat",
+    year: "2025",
+    title: "Kalibrasi October 2025",
+    issuer: "Penyelenggara Kalibrasi",
+    summary:
+      "Dokumen sertifikat dalam format PDF (klik 'Lihat Kredensial' untuk membuka berkas).",
+    image: "",
+    credentialUrl: certKalibrasiPdf,
   },
   {
     id: "dicoding-frontend-pemula",
